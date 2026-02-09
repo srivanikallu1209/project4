@@ -1,0 +1,26 @@
+Inventory & Warehouse Module
+This module handles high-concurrency operations and uses caching to prevent database bottlenecks.
+@Service
+public class InventoryService {
+    @Autowired private ProductRepository productRepository;
+    @Autowired private CacheManager cacheManager;
+
+    @Transactional
+    @CacheEvict(value = "products", key = "#productId")
+    public void updateStock(Long productId, Integer quantityChange) {
+        Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        
+        int newQuantity = product.getQuantity() + quantityChange;
+        if (newQuantity < 0) throw new InsufficientStockException();
+        
+        product.setQuantity(newQuantity);
+        productRepository.save(product);
+    }
+
+    @Cacheable(value = "products", key = "#productId")
+    public ProductDTO getStockLevel(Long productId) {
+        // This hits Redis/Local Cache instead of DB
+        return productRepository.findDtoById(productId);
+    }
+}
