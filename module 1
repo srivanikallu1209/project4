@@ -1,0 +1,19 @@
+1. The Core Infrastructure (Shared)
+Before building modules, you need a shared "Kernel" for common entities, security, and exceptions.
+// Common/Base Entity to ensure auditing across all modules
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
+public abstract class BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @CreatedBy
+    private String createdBy;
+
+    @LastModifiedDate
+    private LocalDateTime lastModified;
+
+    @Version // Optimistic Locking for Performance & Data Integrity
+    private Long version;
+}
