@@ -1,0 +1,13 @@
+Accounting & Finance Module
+The most sensitive module. It requires Immutable Logging—you never update a transaction; you create a correcting entry.
+@RestController
+@RequestMapping("/api/finance")
+public class AccountingController {
+    
+    @PostMapping("/ledger")
+    @AuditLog(action = "POST_LEDGER_ENTRY") // Custom Annotation for compliance
+    public ResponseEntity<TransactionResponse> postGeneralLedger(@RequestBody LedgerRequest request) {
+        // Logic for double-entry bookkeeping
+        return ResponseEntity.ok(financeService.processTransaction(request));
+    }
+}
