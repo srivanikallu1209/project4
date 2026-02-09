@@ -1,0 +1,16 @@
+Sales & Order Module
+This module often integrates with Inventory and Accounting via Domain Events to keep them decoupled.
+@Service
+public class SalesService {
+    @Autowired private ApplicationEventPublisher eventPublisher;
+
+    @Transactional
+    public Order placeOrder(OrderRequest request) {
+        Order order = saveOrder(request);
+        
+        // Decoupled communication: Inventory listens to this to reduce stock
+        eventPublisher.publishEvent(new OrderPlacedEvent(order.getId(), order.getItems()));
+        
+        return order;
+    }
+}
